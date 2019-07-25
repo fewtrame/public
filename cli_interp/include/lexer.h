@@ -25,7 +25,7 @@ public:
     char getLastSymbol() const          { return *_lexem.end(); }
     void removeLastSymbol()             { _lexem.pop_back(); }
 
-    void resetState()                   { _lexem.clear(); _state = new WaitSymbol; }
+    void resetState()                   { _lexem.clear(); delete _state; _state = new WaitSymbol; }
     void setState(State *state)         { _state = state; }
     bool isFinalState() const           { return _state->isFinal(); }
 
