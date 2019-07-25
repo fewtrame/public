@@ -10,7 +10,11 @@ Interpreter::Interpreter()
 std::string Interpreter::translate(std::string line)
 {
     _table.clear();
-    _lexer.analize(line, _table);
+
+    if(!_lexer.analize(line, _table)) {
+        return _table.back().second;
+    }
+
     _iter = _table.crbegin();
 
     return calculate();
@@ -36,7 +40,7 @@ std::string Interpreter::calculate()
 {
     std::stack<std::string> stack;
 
-    while(_iter < _table.crend()) {
+    while(_iter != _table.crend()) {
         if(_iter->first == ")") {
             _iter++;
             stack.push(calculate());
@@ -58,8 +62,8 @@ std::string Interpreter::calculate()
 
 void Interpreter::showTable() const
 {
-    std::vector<std::pair<std::string, std::string> >::const_iterator iter;
-    for(iter = _table.begin(); iter < _table.end(); iter++) {
+    std::list<std::pair<std::string, std::string> >::const_iterator iter;
+    for(iter = _table.cbegin(); iter != _table.cend(); iter++) {
        std::cout << iter->first << " " << iter->second << std::endl;
     }
 }

@@ -2,7 +2,6 @@
 #define STATE_H
 
 #include <string>
-#include <vector>
 #include <iostream>
 
 class Lexer;
@@ -28,6 +27,7 @@ public:
     virtual void otherIn(Lexer *) {}
     virtual void minusIn(Lexer *) {}
     virtual void upperIn(Lexer *) {}
+    virtual void endofIn(Lexer *l) { spaceIn(l);}
 
     virtual ~State();
 };
@@ -55,6 +55,7 @@ public:
     FormString() : State(std::string("FormString"), false) { }
 
     virtual void quoteIn(Lexer *);
+    virtual void endofIn(Lexer *);
 
     virtual ~FormString() {}
 };
@@ -126,7 +127,6 @@ public:
     virtual ~FormLiteral() {}
 };
 
-// Необходимо проверять Keyword {add mul sub concat}
 class FoundLiteral: public State
 {
 public:
@@ -170,7 +170,7 @@ public:
 class LexicalError: public State
 {
 public:
-    LexicalError() : State(std::string("ERROR"), true) { }
+    LexicalError(std::string str) : State(str, true) { }
 
     virtual ~LexicalError() {}
 };

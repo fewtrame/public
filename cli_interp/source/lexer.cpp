@@ -1,6 +1,6 @@
 #include "lexer.h"
 
-void Lexer::analize(std::string line, std::vector<std::pair<std::string, std::string> >& table)
+bool Lexer::analize(std::string line, std::list<std::pair<std::string, std::string> >& table)
 {
     _line = line;
     _iter = _line.begin();
@@ -8,12 +8,20 @@ void Lexer::analize(std::string line, std::vector<std::pair<std::string, std::st
     for (; _iter < _line.end() + 1; _iter++) {
         inputSignal(*_iter);
         if (isFinalState()) {
+            std::string str = getStateName();
+            if (str[0] == 'F') {
+                str += std::string(1, *_iter) + std::string(" at position ") + std::to_string(_iter - _line.begin() + 1);
+                table.push_back(std::pair<std::string, std::string>(" ", str));
+                resetState();
+                return false;
+            }
             table.push_back(std::pair<std::string, std::string>(getLexem(), getStateName()));
             resetState();
         }
     }
 
     resetState();
+    return true;
 }
 
 void Lexer::inputSignal(char symbol)
@@ -29,8 +37,11 @@ void Lexer::inputSignal(char symbol)
     else if (isdigit(symbol)) {
         this->digitIn();
     }
-    else if (isspace(symbol) || symbol == 0) {
+    else if (isspace(symbol)) {
         this->spaceIn();
+    }
+    else if (symbol == 0) {
+        this->endofIn();
     }
     else if (symbol == 45) {
         this->minusIn();

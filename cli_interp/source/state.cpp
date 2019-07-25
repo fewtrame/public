@@ -2,50 +2,51 @@
 #include "lexer.h"
 #include <iostream>
 
-State::~State() {};
+State::~State() { };
 
 /*WaitSymbol*/
 void WaitSymbol::spaceIn(Lexer * lexer) { lexer->removeLastSymbol();
-                                          lexer->setState(new WaitSymbol); delete this; }
-void WaitSymbol::digitIn(Lexer * lexer) { lexer->setState(new FormDigit); delete this; }
-void WaitSymbol::lowerIn(Lexer * lexer) { lexer->setState(new FormKeyword); delete this; }
-void WaitSymbol::quoteIn(Lexer * lexer) { lexer->setState(new FormString); delete this; }
-void WaitSymbol::brackIn(Lexer * lexer) { lexer->setState(new FoundDelimeter); delete this; }
-void WaitSymbol::otherIn(Lexer * lexer) { throw std::runtime_error("Lexical Error"); }
-void WaitSymbol::minusIn(Lexer * lexer) { lexer->setState(new ReceivedMinus); delete this; }
-void WaitSymbol::upperIn(Lexer * lexer) { lexer->setState(new FormLiteral); delete this; }
-
-/*FormDigit*/
-void FormDigit::lowerIn(Lexer * lexer) { throw std::runtime_error("Lexical Error"); }
-void FormDigit::spaceIn(Lexer * lexer) { lexer->removeLastSymbol();
-                                         lexer->setState(new FoundDigit); delete this; }
-void FormDigit::quoteIn(Lexer * lexer) { throw std::runtime_error("Lexical Error"); }
-void FormDigit::brackIn(Lexer * lexer) { lexer->backIterator();
-                                         lexer->setState(new FoundDigit); delete this; }
-void FormDigit::otherIn(Lexer * lexer) { throw std::runtime_error("Lexical Error"); }
-void FormDigit::minusIn(Lexer * lexer) { throw std::runtime_error("Lexical Error"); }
-void FormDigit::upperIn(Lexer * lexer) { throw std::runtime_error("Lexical Error"); }
-
-/*FormLiteral*/
-void FormLiteral::digitIn(Lexer * lexer) { throw std::runtime_error("Lexical Error"); }
-void FormLiteral::spaceIn(Lexer * lexer) { lexer->removeLastSymbol();
-                                           lexer->setState(new FoundLiteral); delete this; }
-void FormLiteral::quoteIn(Lexer * lexer) { throw std::runtime_error("Lexical Error");  }
-void FormLiteral::brackIn(Lexer * lexer) { lexer->backIterator();
-                                           lexer->setState(new FoundLiteral); delete this; }
-void FormLiteral::otherIn(Lexer * lexer) { throw std::runtime_error("Lexical Error"); }
-void FormLiteral::minusIn(Lexer * lexer) { lexer->setState(new LexicalError); delete this; }
+                                          lexer->setState(new WaitSymbol); ; }
+void WaitSymbol::digitIn(Lexer * lexer) { lexer->setState(new FormDigit); ; }
+void WaitSymbol::lowerIn(Lexer * lexer) { lexer->setState(new FormKeyword); ; }
+void WaitSymbol::quoteIn(Lexer * lexer) { lexer->setState(new FormString); ; }
+void WaitSymbol::brackIn(Lexer * lexer) { lexer->setState(new FoundDelimeter); ; }
+void WaitSymbol::minusIn(Lexer * lexer) { lexer->setState(new ReceivedMinus); ; }
+void WaitSymbol::upperIn(Lexer * lexer) { lexer->setState(new FormLiteral); ; }
+void WaitSymbol::otherIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: wrong symbol ")); ; }
 
 /*FormString*/
-void FormString::quoteIn(Lexer * lexer) { lexer->setState(new FoundString); delete this; }
+void FormString::quoteIn(Lexer * lexer) { lexer->setState(new FoundString); ; }
+void FormString::endofIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: string need second \""));}
+
+/*FormDigit*/
+void FormDigit::spaceIn(Lexer * lexer) { lexer->removeLastSymbol();
+                                         lexer->setState(new FoundDigit); ; }
+void FormDigit::brackIn(Lexer * lexer) { lexer->backIterator();
+                                         lexer->setState(new FoundDigit); ; }
+void FormDigit::quoteIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [0-9] expected, but found ")); ;  }
+void FormDigit::lowerIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [0-9] expected, but found ")); ;  }
+void FormDigit::otherIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [0-9] expected, but found ")); ;  }
+void FormDigit::minusIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [0-9] expected, but found ")); ;  }
+void FormDigit::upperIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [0-9] expected, but found ")); ;  }
+
+/*FormLiteral*/
+void FormLiteral::spaceIn(Lexer * lexer) { lexer->removeLastSymbol();
+                                           lexer->setState(new FoundLiteral); ; }
+void FormLiteral::brackIn(Lexer * lexer) { lexer->backIterator();
+                                           lexer->setState(new FoundLiteral); ; }
+void FormLiteral::quoteIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [aA-zZ] expected, but found ")); ; }
+void FormLiteral::digitIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [aA-zZ] expected, but found ")); ; }
+void FormLiteral::otherIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [aA-zZ] expected, but found ")); ; }
+void FormLiteral::minusIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [aA-zZ] expected, but found ")); ; }
 
 /*FormKeyword*/
-void FormKeyword::digitIn(Lexer * lexer) { throw std::runtime_error("Lexical Error"); }
-void FormKeyword::quoteIn(Lexer * lexer) { throw std::runtime_error("Lexical Error"); }
-void FormKeyword::brackIn(Lexer * lexer) { throw std::runtime_error("Lexical Error"); }
-void FormKeyword::otherIn(Lexer * lexer) { throw std::runtime_error("Lexical Error"); }
-void FormKeyword::minusIn(Lexer * lexer) { throw std::runtime_error("Lexical Error"); }
-void FormKeyword::upperIn(Lexer * lexer) { throw std::runtime_error("Lexical Error"); }
+void FormKeyword::digitIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [aA-zZ] expected, but found ")); ;}
+void FormKeyword::quoteIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [aA-zZ] expected, but found ")); ;}
+void FormKeyword::brackIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [aA-zZ] expected, but found ")); ;}
+void FormKeyword::otherIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [aA-zZ] expected, but found ")); ;}
+void FormKeyword::minusIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [aA-zZ] expected, but found ")); ;}
+void FormKeyword::upperIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: [aA-zZ] expected, but found ")); ;}
 void FormKeyword::spaceIn(Lexer * lexer)
 {
     lexer->removeLastSymbol();
@@ -54,7 +55,7 @@ void FormKeyword::spaceIn(Lexer * lexer)
         lexer->setState(new FoundKeyword);
     else
         lexer->setState(new FoundLiteral);
-    delete this;
+    ;
 }
 bool FormKeyword::isKeyword(std::string lexem)
 {
@@ -67,11 +68,11 @@ bool FormKeyword::isKeyword(std::string lexem)
     return false;
 }
 /*ReceivedMinus*/
-void ReceivedMinus::digitIn(Lexer * lexer) { lexer->setState(new FormDigit); delete this; }
-void ReceivedMinus::lowerIn(Lexer * lexer) { lexer->setState(new FormLiteral); delete this; }
-void ReceivedMinus::spaceIn(Lexer * lexer) { lexer->setState(new LexicalError); delete this; }
-void ReceivedMinus::quoteIn(Lexer * lexer) { lexer->setState(new LexicalError); delete this; }
-void ReceivedMinus::brackIn(Lexer * lexer) { lexer->setState(new LexicalError); delete this; }
-void ReceivedMinus::otherIn(Lexer * lexer) { lexer->setState(new LexicalError); delete this; }
-void ReceivedMinus::minusIn(Lexer * lexer) { lexer->setState(new LexicalError); delete this; }
-void ReceivedMinus::upperIn(Lexer * lexer) { lexer->setState(new FormLiteral); delete this; }
+void ReceivedMinus::digitIn(Lexer * lexer) { lexer->setState(new FormDigit); ; }
+void ReceivedMinus::lowerIn(Lexer * lexer) { lexer->setState(new FormLiteral); ; }
+void ReceivedMinus::spaceIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: single -")); ; }
+void ReceivedMinus::quoteIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: wrong combination -")); ; }
+void ReceivedMinus::brackIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: wrong combination -")); ; }
+void ReceivedMinus::otherIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: wrong combination -")); ; }
+void ReceivedMinus::minusIn(Lexer * lexer) { lexer->setState(new LexicalError("Failure: double -")); ; }
+void ReceivedMinus::upperIn(Lexer * lexer) { lexer->setState(new FormLiteral); }

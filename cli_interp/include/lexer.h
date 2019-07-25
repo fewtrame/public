@@ -1,8 +1,8 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include <vector>
 #include <string>
+#include <list>
 
 #include "instruction.h"
 #include "state.h"
@@ -19,20 +19,21 @@ public:
     Lexer() { _state = new WaitSymbol; }
     ~Lexer() { delete _state; }
 
-    void analize(std::string, std::vector<std::pair<std::string, std::string> >&);
+    bool analize(std::string, std::list<std::pair<std::string, std::string> >&);
     void inputSignal(char);
     void backIterator()                 { _iter--; _lexem.pop_back(); }
     char getLastSymbol() const          { return *_lexem.end(); }
     void removeLastSymbol()             { _lexem.pop_back(); }
 
-    void resetState()                   { _lexem.clear(); delete _state; _state = new WaitSymbol; }
-    void setState(State *state)         { _state = state; }
+    void resetState()                   { delete _state; _lexem.clear(); _state = new WaitSymbol; }
+    void setState(State *state)         { delete _state; _state = state; }
     bool isFinalState() const           { return _state->isFinal(); }
 
     std::string getLexem() const        {return _lexem; }
     std::string getStateName() const    { return _state->getName(); }
 
 public:
+    void endofIn() { _state->endofIn(this); }
     void digitIn() { _state->digitIn(this); }     // [0-9]
     void lowerIn() { _state->lowerIn(this); }     // [a-z]
     void spaceIn() { _state->spaceIn(this); }     // [\st]
